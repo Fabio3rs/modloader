@@ -34,6 +34,8 @@ static const char* downurl = "https://github.com/thelink2012/modloader/releases"
 //
 static const char* default_profile_name = "Default";
 
+static const int priority_limit = 9999;
+
 // Functor for sorting based on priority
 template<class T>
 struct SimplePriorityPred

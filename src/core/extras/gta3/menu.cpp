@@ -610,7 +610,7 @@ void TheMenu::ModPageEvents()
     // Helper function to setup a integer priority entry in the menu
     auto SetupPriorityEntry = [this](const char* label, uint32_t& priority, std::function<void(MenuEntry&)> cb) -> std::function<bool(ActionInfo&)>
     {
-        static const uint32_t min = 0, max = 100, step = 1;
+        static const uint32_t min = 0, max = priority_limit, step = 1;
 
         auto PriorityLabel = [](const uint32_t& priority)
         {
