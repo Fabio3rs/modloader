@@ -9,6 +9,8 @@
 
 #ifndef ARGS_TRANSLATOR_STDCALL_HPP
 #define	ARGS_TRANSLATOR_STDCALL_HPP
+#include <intrin.h>
+
 
 #include "translator_basic.hpp"
 
