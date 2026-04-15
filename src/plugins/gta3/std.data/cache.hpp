@@ -381,25 +381,29 @@ class data_cache : public modloader::basic_cache
             using stream_type  = typename std::conditional<Output, std::ofstream, std::ifstream>::type;
             using archive_type = typename std::conditional<Output, cereal::BinaryOutputArchive, cereal::BinaryInputArchive>::type;
 
-            stream_type ss;
+            try {
+                stream_type ss;
 
-            std::unique_ptr<char[]> buffer(new char[buffer_size]);
-            ss.rdbuf()->pubsetbuf(buffer.get(), buffer_size);
+                std::unique_ptr<char[]> buffer(new char[buffer_size]);
+                ss.rdbuf()->pubsetbuf(buffer.get(), buffer_size);
 
-            ss.open(filepath, std::ios::binary);
-            if(ss.is_open())
-            {
-                uint32_t version = build_identifier(); // This variable won't change in the case of a output stream,
-                                                                // but will in the case of a input stream, in any case default initialize for the output case
-                archive_type archive(ss);
-                archive(version);
-                if(version == build_identifier())      // Make sure serialization version matches
+                ss.open(filepath, std::ios::binary);
+                if(ss.is_open())
                 {
-                    func(ss, archive);
-                    return true;
+                    uint32_t version = build_identifier(); // This variable won't change in the case of a output stream,
+                                                                    // but will in the case of a input stream, in any case default initialize for the output case
+                    archive_type archive(ss);
+                    archive(version);
+                    if(version == build_identifier())      // Make sure serialization version matches
+                    {
+                        func(ss, archive);
+                        return true;
+                    }
+                    else
+                        plugin_ptr->Log("Warning: Incompatible cache version, a new cache will be generated.");
                 }
-                else
-                    plugin_ptr->Log("Warning: Incompatible cache version, a new cache will be generated.");
+            } catch (const std::exception &e) {
+                plugin_ptr->Log("Error: Failed to perform cache operation: %s on %s", e.what(), filepath.c_str());
             }
             return false;
         }

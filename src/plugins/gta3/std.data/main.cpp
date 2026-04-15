@@ -638,15 +638,20 @@ auto DataPlugin::ReadCachedReadmeListing() -> readme_listing_type
 {
     readme_listing_type cached_readme_listing;
 
-    std::ifstream ss(cache.GetCachePath("readme.ld"), std::ios::binary);
-    if(ss.is_open())
-    {
-        cereal::BinaryInputArchive archive(ss);
-        if(VerifyCachedReadme(ss, archive))
+    try {
+        std::ifstream ss(cache.GetCachePath("readme.ld"), std::ios::binary);
+        if(ss.is_open())
         {
-            block_reader listing_block(ss);
-            archive(cached_readme_listing);
+            cereal::BinaryInputArchive archive(ss);
+            if(VerifyCachedReadme(ss, archive))
+            {
+                block_reader listing_block(ss);
+                archive(cached_readme_listing);
+            }
         }
+    } catch(const std::exception& e) {
+        this->Log("Error: Failed to read cached readme listing: {}", e.what());
+        cached_readme_listing.clear();
     }
     return cached_readme_listing;
 }
@@ -659,16 +664,21 @@ auto DataPlugin::ReadCachedReadmeStore() -> readme_data_store
 {
     readme_data_store store_lines;
 
-    std::ifstream ss(cache.GetCachePath("readme.ld"), std::ios::binary);
-    if(ss.is_open())
-    {
-        cereal::BinaryInputArchive archive(ss);
-        if(VerifyCachedReadme(ss, archive))
+    try {
+        std::ifstream ss(cache.GetCachePath("readme.ld"), std::ios::binary);
+        if(ss.is_open())
         {
-            block_reader::skip(ss); // skip listing block
-            block_reader lines_block(ss);
-            archive(store_lines);
+            cereal::BinaryInputArchive archive(ss);
+            if(VerifyCachedReadme(ss, archive))
+            {
+                block_reader::skip(ss); // skip listing block
+                block_reader lines_block(ss);
+                archive(store_lines);
+            }
         }
+    } catch(const std::exception& e) {
+        this->Log("Error: Failed to read cached readme store: {}", e.what());
+        store_lines.clear();
     }
     return store_lines;
 }
